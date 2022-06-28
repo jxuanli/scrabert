@@ -2,8 +2,8 @@ use select::document::Document;
 use select::predicate::Name;
 use std::collections::HashSet;
 use std::error::Error;
-use std::io::{Cursor, prelude::*, BufReader};
 use std::fs::File;
+use std::io::{prelude::*, BufReader, Cursor};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -38,10 +38,10 @@ async fn google_search_url(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
         .map(str::to_string)
         .filter_map(|x| {
             let tmp: Vec<&str> = (*x).split("/url?q=").collect();
-            if tmp[1].len() == 0 || !is_trusted("urls.txt",tmp[1]){
+            if tmp[1].len() == 0 || !is_trusted("urls.txt", tmp[1]) {
                 return None;
             }
-            return Some(tmp[1].to_string())
+            return Some(tmp[1].to_string());
         })
         .collect();
     Ok(links)
@@ -65,7 +65,7 @@ async fn get_urls(starting_url: &str) -> Result<Vec<String>, Box<dyn Error>> {
     slices = slices[1].split("/").collect();
     let domain = slices[0];
     if domain.len() == 0 {
-        return Ok(Vec::new()); 
+        return Ok(Vec::new());
     }
     let html = get_html(starting_url).await?;
     let links: Vec<String> = html
