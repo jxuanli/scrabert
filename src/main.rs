@@ -7,13 +7,18 @@ use std::io::Cursor;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
-    let urls =
+    let mut urls =
         google_search_url("https://www.google.com/search?q=why+is+it+called+rust").await?;
     for url in urls {
         set.insert(url);
     }
     for url in set.iter() {
         println!("{}", url);
+    }
+    urls = set.into_iter().collect();
+    let contents = get_contents(&urls[0]).await?;
+    for content in contents {
+        println!("{}", content);
     }
     Ok(())
 }
@@ -65,4 +70,14 @@ async fn get_urls(starting_url: &str) -> Result<Vec<String>, Box<dyn Error>> {
         })
         .collect();
     Ok(links)
+}
+
+async fn get_contents(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
+    let webpage = get_html(url).await?;
+    let contents: Vec<String> = webpage
+        .find(Name("p"))
+        .filter_map(|n| Some(n.text()))
+        .filter(|x| x.len() > 0 && !x.trim().is_empty())
+        .collect();
+    Ok(contents)
 }
