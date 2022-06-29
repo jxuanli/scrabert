@@ -8,18 +8,18 @@ use std::io::{prelude::*, BufReader, Cursor};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
-    let mut urls = dumpy_geter("https://stackexchange.com/sites#traffic").await?;
+    let mut urls = google_search_url("https://www.google.com/search?q=why+is+it+called+rust").await?;
     for url in urls {
         set.insert(url);
     }
     for url in set.iter() {
         println!("{}", url);
     }
-    // urls = set.into_iter().collect();
-    // let contents = get_contents(&urls[0][..]).await?;
-    // for content in contents {
-    //     println!("{}", content);
-    // }
+    urls = set.into_iter().collect();
+    let contents = get_contents(&urls[0][..]).await?;
+    for content in contents {
+        println!("{}", content);
+    }
     Ok(())
 }
 
@@ -94,6 +94,7 @@ async fn get_contents(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(contents)
 }
 
+#[allow(dead_code)]
 async fn dumpy_geter(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
     let html = get_html(url).await?;
     let links: Vec<String> = html
