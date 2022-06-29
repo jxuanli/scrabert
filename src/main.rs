@@ -8,19 +8,18 @@ use std::io::{prelude::*, BufReader, Cursor};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
-    let mut urls =
-        google_search_url("https://www.google.com/search?q=why+is+it+called+rust").await?;
+    let mut urls = dumpy_geter("https://stackexchange.com/sites#traffic").await?;
     for url in urls {
         set.insert(url);
     }
     for url in set.iter() {
         println!("{}", url);
     }
-    urls = set.into_iter().collect();
-    let contents = get_contents(&urls[0][..]).await?;
-    for content in contents {
-        println!("{}", content);
-    }
+    // urls = set.into_iter().collect();
+    // let contents = get_contents(&urls[0][..]).await?;
+    // for content in contents {
+    //     println!("{}", content);
+    // }
     Ok(())
 }
 
@@ -93,4 +92,19 @@ async fn get_contents(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
         .filter(|x| x.len() > 0 && !x.trim().is_empty())
         .collect();
     Ok(contents)
+}
+
+async fn dumpy_geter(url: &str) -> Result<Vec<String>, Box<dyn Error>> {
+    let html = get_html(url).await?;
+    let links: Vec<String> = html
+        .find(Name("a"))
+        .filter_map(|n| n.attr("href"))
+        .filter(|x| (*x).starts_with("https://") && (*x).ends_with(".com"))
+        .filter(|x| {
+            let slices: Vec<&str> = (*x).split("https://").collect();
+            return !slices[1].contains("/");
+        })
+        .map(str::to_string)
+        .collect();
+    Ok(links)
 }
