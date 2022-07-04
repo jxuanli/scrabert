@@ -1,6 +1,5 @@
 wikipedia.org
 yahoo.com
-
 https://www.4chan.org
 https://www.quora.com
 https://ubuntuforums.org
@@ -15,7 +14,6 @@ https://www.washingtonpost.com
 https://politico.com
 https://weather.com/
 https://www.natural.com
-
 https://tex.stackexchange.com
 https://travel.stackexchange.com
 https://apple.stackexchange.com
