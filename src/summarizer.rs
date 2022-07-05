@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 use anyhow::Result;
 use rust_bert::pipelines::common::ModelType;
 use rust_bert::pipelines::summarization::{SummarizationConfig, SummarizationModel};
