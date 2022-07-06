@@ -8,9 +8,9 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{prelude::*, BufReader, Cursor};
 
-const MAX_URLS: usize = 1;
+const MAX_URLS: usize = 5;
 
-pub(crate) async fn scrape() -> Result<Vec<String>, Box<dyn Error>> {
+pub(crate) async fn scrape() -> Result<Vec<Vec<String>>, Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
     let mut urls =
         google_search_url("https://www.google.com/search?q=why+is+it+called+rust").await?;
@@ -18,12 +18,13 @@ pub(crate) async fn scrape() -> Result<Vec<String>, Box<dyn Error>> {
         set.insert(url);
     }
     urls = set.into_iter().collect();
-    let mut contents: Vec<String> = Vec::new();
+    println!("{:?}", urls);
+    let mut contents: Vec<Vec<String>> = Vec::new();
     for i in 0..cmp::min(MAX_URLS, urls.len()) {
+        println!("{:?}", urls[i]);
         let ps = get_contents(&urls[i][..]).await?;
-        contents.extend(ps);
+        contents.push(ps);
     }
-    println!("{:?}", urls[0]);
     Ok(contents)
 }
 
