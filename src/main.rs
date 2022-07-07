@@ -11,10 +11,11 @@ use std::collections::HashSet;
 #[tokio::main]
 async fn main() -> Result<()> {
     let contents = executor::block_on(scraper::scrape()).unwrap();
-    get_summaries(contents).await
+    let summaries = get_summaries(contents).await?;
+    Ok(())
 }
 
-async fn get_summaries(contents: Vec<Vec<String>>) -> Result<()> {
+async fn get_summaries(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
     let mut sp = Spinner::new(Spinners::Dots6, "\t\t I am thinking!");
     sp.start();
     let mut tmp: HashSet<Vec<String>> = HashSet::new();
@@ -28,8 +29,5 @@ async fn get_summaries(contents: Vec<Vec<String>>) -> Result<()> {
         .iter()
         .filter_map(|x| Some((*x)[0].replace("[X_SEP]", "").replace("  ", " ")))
         .collect();
-    for s in summarizations {
-        println!("{:?}", s);
-    }
-    Ok(())
+    Ok(summarizations)
 }
