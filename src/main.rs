@@ -24,7 +24,10 @@ async fn get_summaries(contents: Vec<Vec<String>>) -> Result<()> {
         tmp.insert(summarization);
     }
     sp.stop();
-    let summarizations: Vec<String> = tmp.iter().filter_map(|x| Some((*x)[0].replace("[X_SEP]", "").replace("  ", " "))).collect();
+    let summarizations: Vec<String> = tmp
+        .iter()
+        .filter_map(|x| Some((*x)[0].replace("[X_SEP]", "").replace("  ", " ")))
+        .collect();
     for s in summarizations {
         println!("{:?}", s);
     }
