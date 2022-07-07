@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
 async fn get_summaries(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
     let mut sp = Spinner::new(Spinners::Dots6, "\t\t I am thinking!");
     sp.start();
-    let mut tmp: HashSet<String> = HashSet::new();
+    let mut tmp: HashSet<Vec<String>> = HashSet::new();
     for content in contents {
         let (_handle, classifier) = summarizer::Summarizer::spawn();
         let summarization = classifier.predict(content).await?;
