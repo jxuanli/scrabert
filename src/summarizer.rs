@@ -2,15 +2,12 @@
 use anyhow::Result;
 use rust_bert::pipelines::common::ModelType;
 use rust_bert::pipelines::summarization::{SummarizationConfig, SummarizationModel};
-use rust_bert::prophetnet::{
-    ProphetNetConfigResources, ProphetNetModelResources, ProphetNetVocabResources,
-};
+use rust_bert::t5::{T5ConfigResources, T5ModelResources, T5VocabResources};
 use rust_bert::resources::RemoteResource;
 use std::{
     sync::mpsc,
     thread::{self, JoinHandle},
 };
-use tch::Device;
 use tokio::{sync::oneshot, task};
 
 type Message = (Vec<String>, oneshot::Sender<Vec<String>>);
@@ -28,28 +25,17 @@ impl Summarizer {
     }
 
     fn runner(receiver: mpsc::Receiver<Message>) -> Result<()> {
-        let config_resource = Box::new(RemoteResource::from_pretrained(
-            ProphetNetConfigResources::PROPHETNET_LARGE_CNN_DM,
-        ));
-        let vocab_resource = Box::new(RemoteResource::from_pretrained(
-            ProphetNetVocabResources::PROPHETNET_LARGE_CNN_DM,
-        ));
-        let weights_resource = Box::new(RemoteResource::from_pretrained(
-            ProphetNetModelResources::PROPHETNET_LARGE_CNN_DM,
-        ));
+        let config_resource = RemoteResource::from_pretrained(T5ConfigResources::T5_SMALL);
+        let vocab_resource = RemoteResource::from_pretrained(T5VocabResources::T5_SMALL);
+        let weights_resource = RemoteResource::from_pretrained(T5ModelResources::T5_SMALL);
 
-        let summarization_config = SummarizationConfig {
-            model_type: ModelType::ProphetNet,
-            model_resource: weights_resource,
+        let summarization_config = SummarizationConfig::new(
+            ModelType::T5,
+            weights_resource,
             config_resource,
-            vocab_resource: vocab_resource.clone(),
-            merges_resource: vocab_resource,
-            length_penalty: 1.2,
-            num_beams: 4,
-            no_repeat_ngram_size: 3,
-            device: Device::cuda_if_available(),
-            ..Default::default()
-        };
+            vocab_resource.clone(),
+            vocab_resource,
+        );
         let model = SummarizationModel::new(summarization_config)?;
         while let Ok((texts, sender)) = receiver.recv() {
             let texts: Vec<&str> = texts.iter().map(String::as_str).collect();

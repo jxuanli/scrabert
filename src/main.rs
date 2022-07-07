@@ -12,6 +12,9 @@ use std::collections::HashSet;
 async fn main() -> Result<()> {
     let contents = executor::block_on(scraper::scrape()).unwrap();
     let summaries = get_summaries(contents).await?;
+    for s in summaries {
+        println!("{}", s);
+    }
     Ok(())
 }
 
@@ -27,7 +30,7 @@ async fn get_summaries(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
     sp.stop();
     let summarizations: Vec<String> = tmp
         .iter()
-        .filter_map(|x| Some((*x)[0].replace("[X_SEP]", "").replace("  ", " ")))
+        .filter_map(|x| Some((*x)[0].replace("  ", " ")))
         .collect();
     Ok(summarizations)
 }
