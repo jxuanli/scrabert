@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
-use anyhow::Result;
 use crate::bert::{Bert, Message as M};
+use anyhow::Result;
 use rust_bert::longformer::{
     LongformerConfigResources, LongformerMergesResources, LongformerModelResources,
     LongformerVocabResources,
@@ -29,14 +29,14 @@ impl Bert for QAer {
             None,
             false,
         );
-    
+
         let model = QuestionAnsweringModel::new(config)?;
         while let Ok((texts, sender)) = receiver.recv() {
             let input = QaInput {
                 question: texts[0].clone(),
                 context: texts[1].clone(),
             };
-            let qa_ins = model.predict(&[input], 1, 32); 
+            let qa_ins = model.predict(&[input], 1, 32);
             let mut tmp = Vec::new();
             tmp.push(qa_ins[0][0].answer.clone());
             sender.send(tmp).expect("sending results");

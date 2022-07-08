@@ -1,11 +1,11 @@
 #![forbid(unsafe_code)]
 
+mod bert;
+mod qa;
 mod scraper;
 mod summarizer;
-mod qa;
-mod bert;
-use anyhow::Result;
 use crate::bert::Bert;
+use anyhow::Result;
 use futures::executor;
 use spinners_rs::{Spinner, Spinners};
 use std::collections::HashSet;

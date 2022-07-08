@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
-use anyhow::Result;
 use crate::bert::{Bert, Message as M};
+use anyhow::Result;
 use rust_bert::pipelines::common::ModelType;
 use rust_bert::pipelines::summarization::{SummarizationConfig, SummarizationModel};
-use rust_bert::t5::{T5ConfigResources, T5ModelResources, T5VocabResources};
 use rust_bert::resources::RemoteResource;
+use rust_bert::t5::{T5ConfigResources, T5ModelResources, T5VocabResources};
 use std::sync::mpsc;
 
 #[derive(Debug, Clone)]
