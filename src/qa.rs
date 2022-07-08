@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 use anyhow::Result;
+use crate::bert::{Bert, Message as M};
 use rust_bert::longformer::{
     LongformerConfigResources, LongformerMergesResources, LongformerModelResources,
     LongformerVocabResources,
@@ -9,27 +10,13 @@ use rust_bert::pipelines::question_answering::{
     QaInput, QuestionAnsweringConfig, QuestionAnsweringModel,
 };
 use rust_bert::resources::RemoteResource;
-use std::{
-    sync::mpsc,
-    thread::{self, JoinHandle},
-};
-use tokio::{sync::oneshot, task};
-
-type Message = (Vec<String>, oneshot::Sender<Vec<String>>);
+use std::sync::mpsc;
 
 #[derive(Debug, Clone)]
-pub struct QuestionAnswerer {
-    sender: mpsc::SyncSender<Message>,
-}
+pub struct QAer {}
 
-impl QuestionAnswerer {
-    pub fn spawn() -> (JoinHandle<Result<()>>, QuestionAnswerer) {
-        let (sender, receiver) = mpsc::sync_channel(100);
-        let handle = thread::spawn(move || Self::runner(receiver));
-        (handle, QuestionAnswerer { sender })
-    }
-
-    fn runner(receiver: mpsc::Receiver<Message>) -> Result<()> {
+impl Bert for QAer {
+    fn runner(receiver: mpsc::Receiver<M>) -> Result<()> {
         let config = QuestionAnsweringConfig::new(
             ModelType::Longformer,
             RemoteResource::from_pretrained(LongformerModelResources::LONGFORMER_BASE_SQUAD1),
@@ -56,11 +43,5 @@ impl QuestionAnswerer {
         }
 
         Ok(())
-    }
-
-    pub async fn predict(&self, texts: Vec<String>) -> Result<Vec<String>> {
-        let (sender, receiver) = oneshot::channel();
-        task::block_in_place(|| self.sender.send((texts, sender)))?;
-        Ok(receiver.await?)
     }
 }

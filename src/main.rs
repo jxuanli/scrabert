@@ -3,8 +3,9 @@
 mod scraper;
 mod summarizer;
 mod qa;
-
+mod bert;
 use anyhow::Result;
+use crate::bert::Bert;
 use futures::executor;
 use spinners_rs::{Spinner, Spinners};
 use std::collections::HashSet;
@@ -18,11 +19,11 @@ async fn main() -> Result<()> {
     }
     let mut sp = Spinner::new(Spinners::Dots6, "\t\t I am thinking!");
     sp.start();
-    let (_handle, classifier) = qa::QuestionAnswerer::spawn();
+    let (_handle, classifier) = qa::QAer::spawn();
     let mut tmp = Vec::new();
     tmp.push("Where is Amy?".to_owned());
     tmp.push("Amy is in Vancouver.".to_owned());
-    let qa_ins = classifier.predict(tmp).await?;
+    let qa_ins = qa::QAer::predict(classifier, tmp).await?;
     sp.stop();
     println!("{:?}", qa_ins);
     Ok(())
@@ -34,7 +35,7 @@ async fn get_summaries(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
     let mut tmp: HashSet<Vec<String>> = HashSet::new();
     for content in contents {
         let (_handle, classifier) = summarizer::Summarizer::spawn();
-        let summarization = classifier.predict(content).await?;
+        let summarization = summarizer::Summarizer::predict(classifier, content).await?;
         tmp.insert(summarization);
     }
     sp.stop();
