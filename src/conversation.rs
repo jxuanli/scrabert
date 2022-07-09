@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
-use crate::bert::{Bert, Message as M};
+use crate::{Bert, Message as M};
 use anyhow::Result;
+use async_trait::async_trait;
 use rust_bert::pipelines::conversation::{
     ConversationConfig, ConversationManager, ConversationModel,
 };
@@ -9,6 +10,7 @@ use std::sync::mpsc;
 #[derive(Debug, Clone)]
 pub struct Communicator {}
 
+#[async_trait]
 impl Bert for Communicator {
     fn runner(receiver: mpsc::Receiver<M>) -> Result<()> {
         let config = ConversationConfig {
@@ -25,5 +27,11 @@ impl Bert for Communicator {
             sender.send(tmp).expect("sending results");
         }
         Ok(())
+    }
+
+    async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
+        let (_handle, sender) = Self::spawn();
+        let response = Self::predict(sender, contents[0].clone()).await?;    
+        Ok(response)
     }
 }

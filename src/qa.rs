@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
-use crate::bert::{Bert, Message as M};
+use crate::{Bert, Message as M};
 use anyhow::Result;
+use async_trait::async_trait;
 use rust_bert::longformer::{
     LongformerConfigResources, LongformerMergesResources, LongformerModelResources,
     LongformerVocabResources,
@@ -15,6 +16,7 @@ use std::sync::mpsc;
 #[derive(Debug, Clone)]
 pub struct QuestionAnswerer {}
 
+#[async_trait]
 impl Bert for QuestionAnswerer {
     fn runner(receiver: mpsc::Receiver<M>) -> Result<()> {
         let config = QuestionAnsweringConfig::new(
@@ -43,5 +45,11 @@ impl Bert for QuestionAnswerer {
         }
 
         Ok(())
+    }
+
+    async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
+        let (_handle, sender) = Self::spawn();
+        let qa_ins = Self::predict(sender, contents[0].clone()).await?;
+        Ok(qa_ins)
     }
 }
