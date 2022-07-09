@@ -21,9 +21,7 @@ impl Bert for Communicator {
         while let Ok((texts, sender)) = receiver.recv() {
             conversation_manager.create(&texts[0]);
             let response = model.generate_responses(&mut conversation_manager);
-            let tmp = response.values()
-                .map(|x| (*x).to_owned())
-                .collect();
+            let tmp = response.values().map(|x| (*x).to_owned()).collect();
             sender.send(tmp).expect("sending results");
         }
         Ok(())
