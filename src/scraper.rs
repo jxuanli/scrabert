@@ -18,10 +18,8 @@ pub(crate) async fn scrape() -> Result<Vec<Vec<String>>, Box<dyn Error>> {
         set.insert(url);
     }
     urls = set.into_iter().collect();
-    println!("{:?}", urls);
     let mut contents: Vec<Vec<String>> = Vec::new();
     for i in 0..cmp::min(MAX_URLS, urls.len()) {
-        println!("{:?}", urls[i]);
         let ps = get_contents(&urls[i][..]).await?;
         contents.push(ps);
     }
