@@ -19,11 +19,11 @@ async fn main() -> Result<()> {
     }
     let mut sp = Spinner::new(Spinners::Dots6, "\t\t I am thinking!");
     sp.start();
-    let (_handle, classifier) = qa::QAer::spawn();
+    let (_handle, classifier) = qa::QuestionAnswerer::spawn();
     let mut tmp = Vec::new();
     tmp.push("Where is Amy?".to_owned());
     tmp.push("Amy is in Vancouver.".to_owned());
-    let qa_ins = qa::QAer::predict(classifier, tmp).await?;
+    let qa_ins = qa::QuestionAnswerer::predict(classifier, tmp).await?;
     sp.stop();
     println!("{:?}", qa_ins);
     Ok(())

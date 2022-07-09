@@ -13,9 +13,9 @@ use rust_bert::resources::RemoteResource;
 use std::sync::mpsc;
 
 #[derive(Debug, Clone)]
-pub struct QAer {}
+pub struct QuestionAnswerer {}
 
-impl Bert for QAer {
+impl Bert for QuestionAnswerer {
     fn runner(receiver: mpsc::Receiver<M>) -> Result<()> {
         let config = QuestionAnsweringConfig::new(
             ModelType::Longformer,
