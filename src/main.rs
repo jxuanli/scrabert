@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
-use scrabert::{get_answer, get_response, get_summary};
+use scrabert::{get_answer, get_response};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -11,19 +11,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn test() {
-    let mut tmp = Vec::new();
-    tmp.push("Where is Amy?".to_owned());
-    tmp.push("Amy is in Vancouver.".to_owned());
-    let mut k = Vec::new();
-    k.push(tmp);
-    let answer = get_answer(k).await?;
+async fn test() -> Result<()> {
+    let answer = get_answer("why is it called rust?").await?;
     println!("{:?}", answer);
 
-    tmp = Vec::new();
+    let mut tmp = Vec::new();
     tmp.push("I like cats!".to_owned());
-    k = Vec::new();
+    let mut k = Vec::new();
     k.push(tmp);
     let response = get_response(k).await?;
     println!("{:?}", response);
+    Ok(())
 }

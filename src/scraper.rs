@@ -10,10 +10,10 @@ use std::io::{prelude::*, BufReader, Cursor};
 
 const MAX_URLS: usize = 5;
 
-pub(crate) async fn scrape() -> Result<Vec<Vec<String>>, Box<dyn Error>> {
+pub(crate) async fn scrape(request: &str) -> Result<Vec<Vec<String>>, Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
     let mut urls =
-        google_search_url("https://www.google.com/search?q=why+is+it+called+rust").await?;
+        google_search_url(&format!("{}{}", "https://www.google.com/search?q=", request.replace(" ", "+"))[..]).await?;
     for url in urls {
         set.insert(url);
     }

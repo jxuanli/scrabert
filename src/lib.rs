@@ -42,14 +42,20 @@ pub trait Bert {
     async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>>;
 }
 
-pub async fn get_summary() -> Result<String> {
-    let contents = executor::block_on(scraper::scrape()).unwrap();
+async fn get_summary(request: &str) -> Result<String> {
+    let contents = executor::block_on(scraper::scrape(request)).unwrap();
     let tmp = summarizer::Summarizer::respond(contents).await?;
     Ok(tmp.iter().fold("".to_owned(), |acc, x| acc.clone() + x))
 }
 
-pub async fn get_answer(contents: Vec<Vec<String>>) -> Result<String> {
-    let tmp = qa::QuestionAnswerer::respond(contents).await?;
+pub async fn get_answer(question: &str) -> Result<String> {
+    let contexts = get_summary(question).await?;
+    let mut tmp = Vec::new();
+    tmp.push(question.to_owned());
+    tmp.push(contexts.to_owned());
+    let mut str_vec = Vec::new();
+    str_vec.push(tmp);
+    tmp = qa::QuestionAnswerer::respond(str_vec).await?;
     Ok(tmp.iter().fold("".to_owned(), |acc, x| acc.clone() + x))
 }
 
