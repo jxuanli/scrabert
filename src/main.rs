@@ -7,6 +7,7 @@ use scrabert::{get_summary, get_answer, get_response};
 async fn main() -> Result<()> {
     // let tmp = get_summary().await?;
     // println!("{}", tmp);
+    test().await?;
     Ok(())
 }
 
