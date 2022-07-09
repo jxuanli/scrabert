@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
-use scrabert::{get_summary, get_answer, get_response};
+use scrabert::{get_answer, get_response, get_summary};
 
 #[tokio::main]
 async fn main() -> Result<()> {

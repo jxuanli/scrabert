@@ -5,13 +5,13 @@ mod scraper;
 mod summarizer;
 use anyhow::Result;
 use async_trait::async_trait;
+use futures::executor;
 use spinners_rs::{Spinner, Spinners};
 use std::{
     sync::mpsc,
     thread::{self, JoinHandle},
 };
 use tokio::{sync::oneshot, task};
-use futures::executor;
 
 pub type Message = (Vec<String>, oneshot::Sender<Vec<String>>);
 
