@@ -6,7 +6,6 @@ use rust_bert::pipelines::common::ModelType;
 use rust_bert::pipelines::summarization::{SummarizationConfig, SummarizationModel};
 use rust_bert::resources::RemoteResource;
 use rust_bert::t5::{T5ConfigResources, T5ModelResources, T5VocabResources};
-use std::collections::HashSet;
 use std::sync::mpsc;
 
 #[derive(Debug, Clone)]
@@ -36,17 +35,9 @@ impl Bert for Summarizer {
         Ok(())
     }
 
-    async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
-        let mut tmp: HashSet<Vec<String>> = HashSet::new();
-        for content in contents {
-            let (_handle, sender) = Self::spawn();
-            let summarization = Self::predict(sender, content).await?;
-            tmp.insert(summarization);
-        }
-        let summarizations: Vec<String> = tmp
-            .iter()
-            .filter_map(|x| Some((*x)[0].replace("  ", " ")))
-            .collect();
-        Ok(summarizations)
+    async fn handler(contents: Vec<String>) -> Result<String> {
+        let (_handle, sender) = Self::spawn();
+        let summarization = Self::predict(sender, contents).await?;
+        Ok(summarization)
     }
 }

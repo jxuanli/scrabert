@@ -25,13 +25,13 @@ pub trait Bert {
 
     fn runner(receiver: mpsc::Receiver<Message>) -> Result<()>;
 
-    async fn predict(s: mpsc::SyncSender<Message>, texts: Vec<String>) -> Result<Vec<String>> {
+    async fn predict(s: mpsc::SyncSender<Message>, texts: Vec<String>) -> Result<String> {
         let (sender, receiver) = oneshot::channel();
         task::block_in_place(|| s.send((texts, sender)))?;
-        Ok(receiver.await?)
+        Ok(receiver.await?.iter().fold("".to_owned(), |acc, x| format!("{}{}", acc, x)).to_owned())
     }
 
-    async fn respond(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
+    async fn respond(contents: Vec<String>) -> Result<String> {
         let mut sp = Spinner::new(Spinners::Dots6, "\t\t I am thinking!");
         sp.start();
         let tmp = Self::handler(contents).await?;
@@ -39,27 +39,44 @@ pub trait Bert {
         Ok(tmp)
     }
 
-    async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>>;
+    async fn handler(contents: Vec<String>) -> Result<String>;
+}
+
+pub async fn talk(input: &str) -> Result<String> {
+    let mut res = Ok(String::new());
+    let input_lower_case = input.trim().to_lowercase();
+    let tmp = input_lower_case.clone();
+    let question_indicators = vec!["what", "which", "when", "where", "who", "whom", "whose", "why", "whether", "how"];
+    let is_question = question_indicators.iter().fold(false, |acc, x| tmp.starts_with(x) || acc) || tmp.ends_with("?"); 
+    if is_question {
+        if !input_lower_case.ends_with("?") {
+            res = get_answer(&format!("{}{}", input_lower_case, "?")).await;
+        } else {
+            res = get_answer(input_lower_case.as_str()).await;
+        }
+    } else {
+        res = get_response(input_lower_case.as_str()).await;
+    }
+    res
 }
 
 async fn get_summary(request: &str) -> Result<String> {
     let contents = executor::block_on(scraper::scrape(request)).unwrap();
-    let tmp = summarizer::Summarizer::respond(contents).await?;
-    Ok(tmp.iter().fold("".to_owned(), |acc, x| acc.clone() + x))
+    summarizer::Summarizer::respond(contents[0].clone()).await
 }
 
-pub async fn get_answer(question: &str) -> Result<String> {
+async fn get_answer(question: &str) -> Result<String> {
     let contexts = get_summary(question).await?;
-    let mut tmp = Vec::new();
-    tmp.push(question.to_owned());
-    tmp.push(contexts.to_owned());
-    let mut str_vec = Vec::new();
-    str_vec.push(tmp);
-    tmp = qa::QuestionAnswerer::respond(str_vec).await?;
-    Ok(tmp.iter().fold("".to_owned(), |acc, x| acc.clone() + x))
+    let str_vec = vec![
+        question.to_owned(),
+        contexts.to_owned(),
+    ];
+    qa::QuestionAnswerer::respond(str_vec).await
 }
 
-pub async fn get_response(contents: Vec<Vec<String>>) -> Result<String> {
-    let tmp = conversation::Communicator::respond(contents).await?;
-    Ok(tmp.iter().fold("".to_owned(), |acc, x| acc.clone() + x))
+async fn get_response(input: &str) -> Result<String> {
+    let contents = vec![ 
+        input.to_owned(),
+    ];
+    conversation::Communicator::respond(contents).await
 }

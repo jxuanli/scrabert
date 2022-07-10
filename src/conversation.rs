@@ -29,9 +29,9 @@ impl Bert for Communicator {
         Ok(())
     }
 
-    async fn handler(contents: Vec<Vec<String>>) -> Result<Vec<String>> {
+    async fn handler(contents: Vec<String>) -> Result<String> {
         let (_handle, sender) = Self::spawn();
-        let response = Self::predict(sender, contents[0].clone()).await?;
+        let response = Self::predict(sender, contents).await?;
         Ok(response)
     }
 }
