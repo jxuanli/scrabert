@@ -5,8 +5,6 @@ use scrabert::{get_answer, get_response};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // let tmp = get_summary().await?;
-    // println!("{}", tmp);
     test().await?;
     Ok(())
 }
