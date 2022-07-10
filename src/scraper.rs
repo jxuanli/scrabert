@@ -8,7 +8,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{prelude::*, BufReader, Cursor};
 
-const MAX_URLS: usize = 5;
+const MAX_URLS: usize = 1;
 
 pub(crate) async fn scrape(request: &str) -> Result<Vec<Vec<String>>, Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
