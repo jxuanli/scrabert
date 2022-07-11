@@ -47,7 +47,7 @@ impl Bert for QuestionAnswerer {
         Ok(())
     }
 
-    async fn handler(contents: Vec<String>) -> Result<String> { 
+    async fn handler(contents: Vec<String>) -> Result<String> {
         let (_handle, sender) = Self::spawn();
         let qa_ins = Self::predict(sender, contents).await?;
         Ok(qa_ins)

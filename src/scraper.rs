@@ -12,8 +12,14 @@ const MAX_URLS: usize = 1;
 
 pub(crate) async fn scrape(request: &str) -> Result<Vec<Vec<String>>, Box<dyn Error>> {
     let mut set: HashSet<String> = HashSet::new();
-    let mut urls =
-        google_search_url(&format!("{}{}", "https://www.google.com/search?q=", request.replace(" ", "+"))[..]).await?;
+    let mut urls = google_search_url(
+        &format!(
+            "{}{}",
+            "https://www.google.com/search?q=",
+            request.replace(" ", "+")
+        )[..],
+    )
+    .await?;
     for url in urls {
         set.insert(url);
     }
